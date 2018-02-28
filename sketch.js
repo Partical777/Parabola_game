@@ -31,17 +31,20 @@ var lockmovewhenthrowing = false;
 var Engine = Matter.Engine,
     // Render = Matter.Render,
     World = Matter.World,
-    Bodies = Matter.Bodies;
+    Bodies = Matter.Bodies,
+    Events = Matter.Events,
+    Constraint = Matter.Constraint;
 
 var engine;
 var world;
+var boxes = [];
 
 var ground;
 
 
 function setup() {
   createCanvas(canvaswidth, canvasheight);
-  angleMode(DEGREES);
+  
   
   //matter
   engine = Engine.create();
@@ -50,7 +53,7 @@ function setup() {
   var options = {
     isStatic: true
   }
-  ground = Bodies.rectangle(200, canvasheight - landheight, canvaswidth, landheight, options);
+  ground = Bodies.rectangle(canvaswidth/2, canvasheight - landheight/2, canvaswidth, landheight, options);
   World.add(world, ground);
 }
 
@@ -60,15 +63,10 @@ function draw() {
   //land
   
   push();
-  noStroke();
+  stroke(255);
   fill(color('#b8f1ed'));
-  beginShape();
-  vertex(0, canvasheight - landheight);  //left up
-  vertex(canvaswidth, canvasheight - landheight);  //right up
-  vertex(canvaswidth, canvasheight);  //right bottom
-  vertex(0, canvasheight);  //left bottom
-  
-  endShape(CLOSE);
+  rectMode(CENTER);
+  rect(ground.position.x, ground.position.y, width, landheight);
   pop();
   
   //Position========================================
@@ -78,6 +76,7 @@ function draw() {
   //Angle========================================
   
   push();
+  angleMode(DEGREES);
   translate(rectx+(rectsize/2), recty+(rectsize/2));
   
   
@@ -91,6 +90,7 @@ function draw() {
     rotate(lineangle);
   }
   line(0, 0, toward, 0);
+  angleMode(RADIANS);
   pop();
   
   //Power=========================================
@@ -111,9 +111,12 @@ function draw() {
   text('9', 9*(canvaswidth/10), 30);
   text('10', 9.8*(canvaswidth/10), 30);
   
-  //Throw=========================================
-  
-  throwfunc();
+  //Monitor Block if stop or out of canvas=========================================
+  if(boxes.length > 0){
+    if(boxes[boxes.length-1].MonitorBlockStopOrOut()){
+      resetthrow();
+    }
+  }
   
   //Keyboard========================================
   
@@ -163,43 +166,39 @@ function draw() {
       }
     }
   }
-  
+  for(var i = 0 ; i < boxes.length; i++){
+    boxes[i].show();
+  }
 }
 
-
+function mousePressed(){
+  boxes.push(new Box(mouseX, mouseY, 20, 20));
+}
 
 function keyReleased() {
+  
   if(!lockmovewhenthrowing){    //if block is throwing, it can't action
     if (keyCode === 32) {
-      cosxlineanglepower = cos(lineangle)*ceil(powerpercent)/xspeedconst;
-      sinylineanglepower = sin(lineangle)*ceil(powerpercent)/yspeedconst;
+      push();
+      angleMode(DEGREES);
+      cosxlineanglepower = cos(lineangle)*ceil(powerpercent);
+      sinylineanglepower = sin(lineangle)*ceil(powerpercent);
       Xthrowblock = rectx + (rectsize/2);
       Ythrowblock = recty + (rectsize/2);
       lockmovewhenthrowing = true;
-    }
-  }
-  return false; // prevent any default behavior
-}
-
-function throwfunc(){
-  if(lockmovewhenthrowing){
-    if(toward > 0){
-      Xthrowblock += cosxlineanglepower;
-    }else{
-      Xthrowblock -= cosxlineanglepower;
-    }
-    Ythrowblock += -(sinylineanglepower);
-    sinylineanglepower -= gravity;
-    ellipse(Xthrowblock, Ythrowblock, throwballsize, throwballsize);
-  }
-  
-  if(Ythrowblock > canvasheight - landheight){
       
+      if(toward > 0){
+        cosxlineanglepower = cosxlineanglepower;   
+      }else{
+        cosxlineanglepower = -cosxlineanglepower;
+      }
+      angleMode(RADIANS);
+      pop();
+      boxes.push(new Box(Xthrowblock, Ythrowblock, throwballsize, throwballsize, cosxlineanglepower, sinylineanglepower));
+    }
   }
   
-  if(Xthrowblock < 0 || Xthrowblock > canvaswidth || Ythrowblock > canvasheight){
-    resetthrow(); 
-  }
+  return false; // prevent any default behavior
 }
 
 function resetthrow(){
