@@ -5,7 +5,12 @@ var recty = canvasheight-30;    //default y position
 var lineangle = 0;    //default angle
 var powerpercent = 0;   //default percent
 var powerbool = true;
-var toward = 60;
+var toward = 60;    //const aangle text position
+var cosxlineanglepower = 0;
+var sinylineanglepower = 0;
+var Xthrowblock = 0;
+var Ythrowblock = 0;
+var lockmovewhenthrowing = false;
 
 function setup() {
   createCanvas(canvaswidth, canvasheight);
@@ -14,6 +19,9 @@ function setup() {
 
 function draw() {
   background(255, 180, 210);
+  
+  //Tmp target
+  ellipse(850, 670, 100, 100);
   
   //Position========================================
   
@@ -99,6 +107,7 @@ function draw() {
       }
       if(powerpercent < 0){
         powerbool = !powerbool;
+        powerpercent = 0;
       }
       if(powerbool){
         powerpercent += 1;
@@ -108,21 +117,22 @@ function draw() {
     }
   }
   
+  if(dist(850, 670, Xthrowblock, Ythrowblock) < 60){
+    alert("You Hit me!!");
+    resetthrow();
+  }
+  
 }
 
-var cosxlineanglepower = 0;
-var sinylineanglepower = 0;
-var Xthrowblock = 0;
-var Ythrowblock = 0;
-var lockmovewhenthrowing = false;
+
 
 function keyReleased() {
   if(!lockmovewhenthrowing){    //if block is throwing, it can't action
     if (keyCode === 32) {
       cosxlineanglepower = cos(lineangle)*powerpercent/5;
       sinylineanglepower = sin(lineangle)*powerpercent/5;
-      Xthrowblock = rectx+15;
-      Ythrowblock = recty+15;
+      Xthrowblock = rectx + 15;
+      Ythrowblock = recty + 15;
       lockmovewhenthrowing = true;
     }
   }
@@ -138,10 +148,20 @@ function throwfunc(){
     }
     Ythrowblock += -(sinylineanglepower);
     sinylineanglepower -= 0.1;
-    rect(Xthrowblock, Ythrowblock, 35, 35);
+    ellipse(Xthrowblock, Ythrowblock, 35, 35);
   }
   if(Xthrowblock < 0 || Xthrowblock > canvaswidth || Ythrowblock > canvasheight){
-    lockmovewhenthrowing = false;
+    resetthrow(); 
   }
+}
+
+function resetthrow(){
+  setTimeout(function(){
+      lockmovewhenthrowing = false;   //re can move
+      powerpercent = 0;   //re default
+      powerbool = true;   //re default
+      Xthrowblock = 0;   //re default
+      Ythrowblock = 0;   //re default
+    },0);
 }
 
