@@ -1,8 +1,19 @@
+//variable===============================================
 var canvaswidth = 600*2;
 var canvasheight = 480*1.5;
+var rectsize = 30;
 var rectx = 100;    //default x position
-var recty = canvasheight-30;    //default y position
+var recty = canvasheight - rectsize;    //default y position
 var lineangle = 0;    //default angle
+var throwballsize = 35;
+
+var movespeed = 2;
+var turnanglespeed = 1;
+var xspeedconst = 5;
+var yspeedconst = 5;
+var gravity = 0.1
+
+//const==================================================
 var powerpercent = 0;   //default percent
 var powerbool = true;
 var toward = 60;    //const aangle text position
@@ -11,6 +22,8 @@ var sinylineanglepower = 0;
 var Xthrowblock = 0;
 var Ythrowblock = 0;
 var lockmovewhenthrowing = false;
+
+
 
 function setup() {
   createCanvas(canvaswidth, canvasheight);
@@ -22,13 +35,13 @@ function draw() {
   
   //Position========================================
   
-  rect(rectx, recty, 30, 30);
+  rect(rectx, recty, rectsize, rectsize);
   
   
   //Angle========================================
   
   push();
-  translate(rectx+15, recty+15);
+  translate(rectx+(rectsize/2), recty+(rectsize/2));
   
   
   if(toward > 0){   //toward right
@@ -69,7 +82,7 @@ function draw() {
   
   if(!lockmovewhenthrowing){    //if block is throwing, it can't action
     if(keyIsDown(37)){  //left
-      rectx -= 2;
+      rectx -= movespeed;
       if(rectx < 0){
         rectx = 0;
       }
@@ -78,7 +91,7 @@ function draw() {
       }
     }
     if(keyIsDown(39)){  //right
-      rectx += 2;
+      rectx += movespeed;
       if(rectx > canvaswidth - 30){
         rectx = canvaswidth - 30;
       }
@@ -87,13 +100,13 @@ function draw() {
       }
     }
     if(keyIsDown(38)){  //up
-      lineangle += 1;
+      lineangle += turnanglespeed;
       if(lineangle > 90){
         lineangle = 90;
       }
     }
     if(keyIsDown(40)){  //down
-      lineangle -= 1;
+      lineangle -= turnanglespeed;
       if(lineangle < 0){
         lineangle = 0;
       }
@@ -121,10 +134,10 @@ function draw() {
 function keyReleased() {
   if(!lockmovewhenthrowing){    //if block is throwing, it can't action
     if (keyCode === 32) {
-      cosxlineanglepower = cos(lineangle)*powerpercent/5;
-      sinylineanglepower = sin(lineangle)*powerpercent/5;
-      Xthrowblock = rectx + 15;
-      Ythrowblock = recty + 15;
+      cosxlineanglepower = cos(lineangle)*powerpercent/xspeedconst;
+      sinylineanglepower = sin(lineangle)*powerpercent/yspeedconst;
+      Xthrowblock = rectx + (rectsize/2);
+      Ythrowblock = recty + (rectsize/2);
       lockmovewhenthrowing = true;
     }
   }
@@ -139,8 +152,8 @@ function throwfunc(){
       Xthrowblock -= cosxlineanglepower;
     }
     Ythrowblock += -(sinylineanglepower);
-    sinylineanglepower -= 0.1;
-    ellipse(Xthrowblock, Ythrowblock, 35, 35);
+    sinylineanglepower -= gravity;
+    ellipse(Xthrowblock, Ythrowblock, throwballsize, throwballsize);
   }
   if(Xthrowblock < 0 || Xthrowblock > canvaswidth || Ythrowblock > canvasheight){
     resetthrow(); 
