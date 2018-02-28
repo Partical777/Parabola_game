@@ -20,9 +20,6 @@ function setup() {
 function draw() {
   background(255, 180, 210);
   
-  //Tmp target
-  ellipse(850, 670, 100, 100);
-  
   //Position========================================
   
   rect(rectx, recty, 30, 30);
@@ -115,11 +112,6 @@ function draw() {
         powerpercent -= 1;
       }
     }
-  }
-  
-  if(dist(850, 670, Xthrowblock, Ythrowblock) < 60){
-    alert("You Hit me!!");
-    resetthrow();
   }
   
 }
